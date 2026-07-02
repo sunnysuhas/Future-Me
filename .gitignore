@@ -1,4 +1,4 @@
-# Local environment files
+.env.example
 .env
+.env.local
 .env.*
-!.env.example

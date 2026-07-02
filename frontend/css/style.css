@@ -1,0 +1,164 @@
+/* Custom Premium CSS for FutureMe */
+
+/* Elegant Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(110, 110, 115, 0.2);
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(10, 132, 255, 0.5);
+}
+
+/* Base transitions */
+.view-transition {
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Glass panel reflection shine effect */
+.glass-panel {
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-panel::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: skewX(-25deg);
+  transition: 0.75s;
+  pointer-events: none;
+}
+
+.glass-panel:hover::after {
+  left: 150%;
+}
+
+/* Skeleton Loading Pulsing Effect */
+@keyframes skeleton-pulse {
+  0%, 100% {
+    background-color: rgba(255, 255, 255, 0.4);
+  }
+  50% {
+    background-color: rgba(255, 255, 255, 0.7);
+  }
+}
+
+.skeleton-box {
+  animation: skeleton-pulse 1.5s infinite ease-in-out;
+}
+
+/* Cinematic Temporal Portal Animation */
+@keyframes portal-spin {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.05); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+@keyframes portal-glow {
+  0%, 100% { box-shadow: 0 0 30px 10px rgba(10, 132, 255, 0.2), 0 0 60px 20px rgba(139, 92, 246, 0.15); }
+  50% { box-shadow: 0 0 50px 20px rgba(10, 132, 255, 0.4), 0 0 90px 30px rgba(139, 92, 246, 0.3); }
+}
+
+.portal-core {
+  background: radial-gradient(circle, rgba(10,132,255,0.8) 0%, rgba(139,92,246,0.6) 40%, rgba(255,255,255,0) 70%);
+  animation: portal-spin 10s infinite linear, portal-glow 4s infinite ease-in-out;
+  filter: blur(10px);
+}
+
+.portal-ring-outer {
+  border: 2px dashed rgba(10, 132, 255, 0.3);
+  animation: portal-spin 25s infinite linear;
+}
+
+.portal-ring-inner {
+  border: 1px dashed rgba(139, 92, 246, 0.4);
+  animation: portal-spin 15s infinite linear reverse;
+}
+
+/* Toast Notifications styling */
+.toast-notification {
+  transform: translateY(100px) scale(0.9);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.toast-notification.show {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+/* Typing Indicator Bounce */
+@keyframes typing-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.typing-dot {
+  animation: typing-bounce 1s infinite ease-in-out;
+}
+
+/* Custom Button Hover Effects */
+.btn-premium {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-premium::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.6s ease, height 0.6s ease;
+}
+
+.btn-premium:active::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* Input Styles Focus */
+.input-premium {
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.input-premium:focus {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: #0A84FF;
+  box-shadow: 0 0 0 4px rgba(10, 132, 255, 0.15);
+}
+
+/* Glass Overlay background */
+.glass-overlay {
+  background: rgba(245, 245, 247, 0.6);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+}

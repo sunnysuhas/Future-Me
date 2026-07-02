@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FutureMe - Your Personal AI Mentor</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #F5F5F7;
+      background-image: radial-gradient(circle at 50% 0%, rgba(10, 132, 255, 0.05) 0%, transparent 70%);
+      color: #111111;
+    }
+    
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulseSoft {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.05); }
+    }
+
+    .animate-fade-in {
+      animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    
+    .animate-pulse-soft {
+      animation: pulseSoft 3s infinite ease-in-out;
+    }
+
+    .stagger-1 { animation-delay: 0.1s; opacity: 0; }
+    .stagger-2 { animation-delay: 0.2s; opacity: 0; }
+    .stagger-3 { animation-delay: 0.3s; opacity: 0; }
+    .stagger-4 { animation-delay: 0.4s; opacity: 0; }
+  </style>
+</head>
+<body class="h-screen w-full overflow-hidden flex selection:bg-[#0A84FF] selection:text-white antialiased">
+
+  <!-- Toast Notification System -->
+  <div id="toast-container" class="fixed top-6 right-6 z-50 flex flex-col gap-3 pointer-events-none"></div>
+
+  <!-- VIEW 1: LANDING PAGE -->
+  <div id="landing-view" class="w-full h-full flex flex-col items-center justify-center px-6 view-transition">
+    <div class="max-w-xl text-center space-y-8 glass-panel p-12 rounded-3xl animate-fade-in">
+      <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-tr from-[#0A84FF] to-[#60A5FA] flex items-center justify-center shadow-xl">
+        <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+      </div>
+      <div class="space-y-3">
+        <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-[#111111]">FutureMe</h1>
+        <p class="text-xl text-[#6E6E73] font-light">Your Personal AI Mentor from 10 Years in the Future</p>
+      </div>
+      <p class="text-[#6E6E73] leading-relaxed text-sm">
+        "I already became the person you dream of becoming. I'm waiting for you." Connect with your successful future self and let them guide you through your present hurdles.
+      </p>
+      <div>
+        <button id="btn-start-onboarding" class="btn-premium w-full md:w-auto px-8 py-4 bg-[#111111] hover:bg-[#222] text-white font-medium rounded-2xl shadow-lg transition-all transform hover:scale-105 active:scale-95">
+          Meet Your Future Self
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW 2: GUIDED ONBOARDING JOURNEY -->
+  <div id="onboarding-view" class="w-full h-full hidden items-center justify-center p-6 view-transition bg-white/30 backdrop-blur-xl">
+    <div class="max-w-2xl w-full glass-panel rounded-3xl p-8 md:p-10 shadow-2xl relative">
+      
+      <!-- Progress Indicator -->
+      <div class="mb-8 flex justify-between items-center">
+        <span class="text-xs font-semibold text-[#0A84FF] uppercase tracking-wider">Step <span id="onboarding-step-num">1</span> of 3</span>
+        <div class="flex gap-2">
+          <div class="w-12 h-1.5 rounded-full bg-[#0A84FF] transition-all duration-300" id="onboarding-bar-1"></div>
+          <div class="w-12 h-1.5 rounded-full bg-gray-200 transition-all duration-300" id="onboarding-bar-2"></div>
+          <div class="w-12 h-1.5 rounded-full bg-gray-200 transition-all duration-300" id="onboarding-bar-3"></div>
+        </div>
+      </div>
+
+      <!-- Form Container -->
+      <form id="onboarding-form" class="space-y-6" onsubmit="event.preventDefault();">
+        
+        <!-- Step 1: The Present Self -->
+        <div id="step-1-fields" class="space-y-5 animate-fade-in">
+          <h2 class="text-2xl font-bold tracking-tight mb-1">Let's anchor your present self.</h2>
+          <p class="text-sm text-[#6E6E73] mb-6">Who is starting this journey today?</p>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-1">
+              <label class="text-xs font-semibold text-[#6E6E73]">Your Name</label>
+              <input type="text" id="input-name" placeholder="Alex" class="input-premium w-full rounded-xl px-4 py-3 text-sm outline-none" required>
+            </div>
+            <div class="space-y-1">
+              <label class="text-xs font-semibold text-[#6E6E73]">Your Current Age</label>
+              <input type="number" id="input-age" placeholder="24" class="input-premium w-full rounded-xl px-4 py-3 text-sm outline-none" required min="1" max="120">
+            </div>
+          </div>
+          
+          <div class="space-y-1">
+            <label class="text-xs font-semibold text-[#6E6E73]">Your Profession / Focus Area</label>
+            <input type="text" id="input-profession" placeholder="Software Engineer & Product Designer" class="input-premium w-full rounded-xl px-4 py-3 text-sm outline-none" required>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-1">
+              <label class="text-xs font-semibold text-[#6E6E73]">Your Core Values (Comma separated)</label>
+              <input type="text" id="input-values" placeholder="Freedom, Creativity, Perseverance" class="input-premium w-full rounded-xl px-4 py-3 text-sm outline-none" required>
+            </div>
+            <div class="space-y-1">
+              <label class="text-xs font-semibold text-[#6E6E73]">Current Mood</label>
+              <select id="input-mood" class="input-premium w-full rounded-xl px-4 py-3 text-sm outline-none cursor-pointer">
+                <option value="Motivated">Motivated but uncertain</option>
+                <option value="Overwhelmed">Overwhelmed & stressed</option>
+                <option value="Determined">Determined & focused</option>
+                <option value="Stuck">Stuck in a rut</option>
+                <option value="Excited">Excited for changes</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: The Future Path -->
+        <div id="step-2-fields" class="space-y-5 hidden animate-fade-in">
+          <h2 class="text-2xl font-bold tracking-tight mb-1">What does success look like?</h2>
+          <p class="text-sm text-[#6E6E73] mb-6">Describe the dream and direction of your life.</p>
+          
+          <div class="space-y-1">
+            <label class="text-xs font-semibold text-[#6E6E73]">Ultimate Lifetime Dream</label>
+            <input type="text" id="input-dream" placeholder="Build a self-sustaining design studio and travel the world" class="input-premium w-full rounded-xl px-4 py-3 text-sm outline-none" required>
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-xs font-semibold text-[#6E6E73]">Your Main Focus Goal Right Now</label>
+            <input type="text" id="input-currentGoal" placeholder="Finish the Q3 Vision Document and secure seed funding" class="input-premium w-full rounded-xl px-4 py-3 text-sm outline-none" required>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-1">
+              <label class="text-xs font-semibold text-[#6E6E73]">One-Year Vision</label>
+              <input type="text" id="input-oneYearVision" placeholder="Launch my product and quit full-time job" class="input-premium w-full rounded-xl px-4 py-3 text-sm outline-none" required>
+            </div>
+            <div class="space-y-1">
+              <label class="text-xs font-semibold text-[#6E6E73]">Five-Year Vision</label>
+              <input type="text" id="input-fiveYearVision" placeholder="Lead a team of 10 people doing creative work" class="input-premium w-full rounded-xl px-4 py-3 text-sm outline-none" required>
+            </div>
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-xs font-semibold text-[#6E6E73]">Your Key Habit (Good or Bad you want to change)</label>
+            <input type="text" id="input-habit" placeholder="Daily morning planning vs late night doomscrolling" class="input-premium w-full rounded-xl px-4 py-3 text-sm outline-none" required>
+          </div>
+        </div>
+
+        <!-- Step 3: The Voice & Shadows -->
+        <div id="step-3-fields" class="space-y-5 hidden animate-fade-in">
+          <h2 class="text-2xl font-bold tracking-tight mb-1">Confronting the hurdles.</h2>
+          <p class="text-sm text-[#6E6E73] mb-6">Define your mentors tone and your obstacles.</p>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-1">
+              <label class="text-xs font-semibold text-[#6E6E73]">Biggest Struggle Currently</label>
+              <input type="text" id="input-struggle" placeholder="Procrastination & lack of structured focus" class="input-premium w-full rounded-xl px-4 py-3 text-sm outline-none" required>
+            </div>
+            <div class="space-y-1">
+              <label class="text-xs font-semibold text-[#6E6E73]">Biggest Deep Fear</label>
+              <input type="text" id="input-fear" placeholder="Failing publically and running out of savings" class="input-premium w-full rounded-xl px-4 py-3 text-sm outline-none" required>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-1">
+              <label class="text-xs font-semibold text-[#6E6E73]">Mentor's Persona Tone</label>
+              <select id="input-tone" class="input-premium w-full rounded-xl px-4 py-3 text-sm outline-none cursor-pointer">
+                <option value="Calm Mentor">Calm Mentor (Wise, patient, supportive)</option>
+                <option value="Motivational">Motivational (Energetic, high-vibe)</option>
+                <option value="Brutally Honest">Brutally Honest (No excuses, tough love)</option>
+                <option value="CEO Mode">CEO Mode (Strategic, metrics-driven)</option>
+                <option value="Stoic Philosopher">Stoic Philosopher (Virtuous, calm, logical)</option>
+                <option value="Spiritual Guide">Spiritual Guide (Mindful, alignment-focused)</option>
+                <option value="Elite Athlete">Elite Athlete (Performance, discipline)</option>
+                <option value="Scientist">Scientist (Hypothesis, data-driven)</option>
+                <option value="Visionary Founder">Visionary Founder (Out-of-the-box, bold)</option>
+                <option value="Military Discipline">Military Discipline (Duty, process, absolute)</option>
+              </select>
+            </div>
+            <div class="space-y-1">
+              <label class="text-xs font-semibold text-[#6E6E73]">Communication Style</label>
+              <select id="input-style" class="input-premium w-full rounded-xl px-4 py-3 text-sm outline-none cursor-pointer">
+                <option value="Direct & Action-Oriented">Direct & Action-Oriented</option>
+                <option value="Gentle & Empathetic">Gentle & Empathetic</option>
+                <option value="Socratic & Question-Based">Socratic & Question-Based</option>
+                <option value="Storytelling & Metaphorical">Storytelling & Metaphorical</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="flex justify-between items-center pt-6 border-t border-white/20">
+          <button type="button" id="btn-onboarding-back" class="hidden text-sm font-semibold text-[#6E6E73] hover:text-[#111] transition-colors">
+            Back
+          </button>
+          <div class="flex-1"></div>
+          <button type="button" id="btn-onboarding-next" class="btn-premium px-6 py-3 bg-[#111111] text-white text-sm font-semibold rounded-xl hover:bg-[#222] transition-colors flex items-center gap-2">
+            <span>Continue</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- VIEW 3: TEMPORAL CONNECTION CINEMATIC LOADING -->
+  <div id="temporal-view" class="w-full h-full hidden flex-col items-center justify-center px-6 view-transition bg-[#F5F5F7]">
+    <div class="relative w-72 h-72 flex items-center justify-center mb-12">
+      <!-- Portal Core Background Glow -->
+      <div class="absolute inset-4 rounded-full portal-core opacity-80"></div>
+      
+      <!-- Dashed Portal Rings -->
+      <div class="absolute inset-0 rounded-full portal-ring-outer"></div>
+      <div class="absolute inset-8 rounded-full portal-ring-inner"></div>
+      
+      <!-- Hourglass / Target Vector Icon inside -->
+      <div class="relative z-10 p-6 bg-white/20 backdrop-blur-md rounded-full shadow-lg border border-white/30 animate-pulse-soft">
+        <svg class="w-16 h-16 text-[#0A84FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        </svg>
+      </div>
+    </div>
+    
+    <div class="text-center space-y-4 max-w-md">
+      <h3 class="text-2xl font-bold tracking-tight text-[#111]">Establishing Temporal Link</h3>
+      <p id="temporal-status" class="text-[#6E6E73] font-light text-base h-8 transition-opacity duration-300">
+        Connecting with your future self...
+      </p>
+    </div>
+  </div>
+
+  <!-- VIEW 4: MAIN DASHBOARD & MENTOR SYSTEM LAYOUT -->
+  <div id="app-view" class="h-screen w-full hidden flex selection:bg-[#0A84FF] selection:text-white antialiased view-transition">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="w-20 md:w-64 h-full glass-panel border-r border-white/40 flex flex-col justify-between py-8 px-4 flex-shrink-0 z-10">
+      <div class="space-y-8">
+        <!-- Logo -->
+        <div class="flex items-center justify-center md:justify-start md:px-4 gap-3">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#0A84FF] to-[#60A5FA] flex items-center justify-center shadow-lg">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+          </div>
+          <span class="font-bold text-xl hidden md:block tracking-tight">FutureMe</span>
+        </div>
+
+        <!-- Nav Links -->
+        <nav class="space-y-2" id="sidebar-nav">
+          <a href="#" id="nav-dashboard" class="flex items-center gap-4 px-4 py-3 rounded-2xl bg-[#111111] text-white shadow-md transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+            <span class="font-medium hidden md:block">Dashboard</span>
+          </a>
+          <a href="#" id="nav-chat" class="flex items-center gap-4 px-4 py-3 rounded-2xl text-[#6E6E73] hover:bg-white/50 hover:text-[#111111] transition-all lg:hidden">
+            <!-- Hidden on desktop since Chat is docked on the side, but shown on tablet/mobile -->
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+            <span class="font-medium hidden md:block">Mentor Chat</span>
+          </a>
+          <a href="#" id="nav-timeline" class="flex items-center gap-4 px-4 py-3 rounded-2xl text-[#6E6E73] hover:bg-white/50 hover:text-[#111111] transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span class="font-medium hidden md:block">Timeline</span>
+          </a>
+          <a href="#" id="nav-letters" class="flex items-center gap-4 px-4 py-3 rounded-2xl text-[#6E6E73] hover:bg-white/50 hover:text-[#111111] transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76"></path></svg>
+            <span class="font-medium hidden md:block">Letters</span>
+          </a>
+        </nav>
+      </div>
+      
+      <!-- Reset/Profile Button -->
+      <div class="px-4 space-y-4">
+        <button id="btn-toggle-chat" class="hidden lg:flex w-full items-center justify-center p-2 rounded-2xl bg-white/50 hover:bg-[#111111] hover:text-white transition-colors" title="Toggle Chat Drawer">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+        </button>
+        <div id="btn-profile-menu" class="w-10 h-10 rounded-full bg-gray-200 border-2 border-white shadow-sm mx-auto md:mx-0 overflow-hidden cursor-pointer hover:ring-2 ring-[#0A84FF] transition-all relative group">
+          <img id="avatar-user" src="https://api.dicebear.com/7.x/notionists/svg?seed=Alex&backgroundColor=F5F5F7" alt="Profile" class="w-full h-full object-cover">
+          <!-- Reset prompt helper -->
+          <div class="absolute inset-0 bg-[#FF3B30] opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity" title="Reset Session">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 h-full overflow-y-auto p-6 md:p-10 lg:p-12 scroll-smooth">
+      <div class="max-w-4xl mx-auto space-y-10">
+        
+        <!-- PANEL 1: DASHBOARD VIEW -->
+        <section id="panel-dashboard" class="space-y-10">
+          
+          <!-- Hero Header -->
+          <header class="space-y-3 animate-fade-in">
+            <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-[#111111]" id="dashboard-welcome">Welcome back, Alex.</h1>
+            <div class="flex items-start space-x-3">
+              <div class="mt-1 p-1.5 bg-[#0A84FF]/10 rounded-full animate-pulse-soft flex-shrink-0">
+                <svg class="w-5 h-5 text-[#0A84FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+              </div>
+              <p id="dashboard-quote" class="text-xl text-[#6E6E73] font-light leading-relaxed max-w-2xl">
+                "Today is another chance to become the person you've always imagined. I'm already proud of what you'll do."
+              </p>
+            </div>
+          </header>
+
+          <!-- Dashboard Grid Row 1 -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <!-- Today's Focus Card -->
+            <div class="md:col-span-2 glass-panel rounded-3xl p-8 hover:-translate-y-1 transition-transform duration-300 animate-fade-in stagger-2">
+              <div class="flex justify-between items-center mb-6">
+                <h2 class="text-lg font-semibold flex items-center gap-2">
+                  <svg class="w-5 h-5 text-[#0A84FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> 
+                  Today's Focus
+                </h2>
+                <button id="btn-add-focus" class="text-sm font-medium text-[#6E6E73] hover:text-[#0A84FF] transition-colors">Add Goal</button>
+              </div>
+
+              <!-- Input form for Focus (hidden by default) -->
+              <div id="focus-input-container" class="hidden mb-4 p-4 rounded-2xl bg-white/50 border border-white/60 animate-fade-in">
+                <div class="flex gap-2">
+                  <input type="text" id="input-new-focus" placeholder="Enter focus goal..." class="input-premium flex-1 rounded-xl px-4 py-2 text-sm outline-none">
+                  <button id="btn-save-focus" class="px-4 py-2 bg-[#111] text-white text-sm font-semibold rounded-xl hover:bg-[#222]">Add</button>
+                </div>
+              </div>
+
+              <!-- Dynamic Focus List -->
+              <div id="focus-list" class="space-y-4">
+                <!-- Skeleton Loader initially -->
+                <div class="skeleton-box h-12 w-full rounded-2xl"></div>
+                <div class="skeleton-box h-12 w-full rounded-2xl"></div>
+              </div>
+            </div>
+
+            <!-- Consistency Ring Card -->
+            <div class="glass-panel rounded-3xl p-8 hover:-translate-y-1 transition-transform duration-300 flex flex-col animate-fade-in stagger-3">
+              <h2 class="text-lg font-semibold flex items-center gap-2 mb-4">
+                <svg class="w-5 h-5 text-[#FF9500]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"></path></svg> 
+                Consistency
+              </h2>
+              <div class="flex-1 flex items-center justify-center py-2">
+                <div class="relative w-32 h-32">
+                  <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="40" stroke="#E5E5EA" stroke-width="8" fill="transparent"></circle>
+                    <circle id="consistency-circle" cx="50" cy="50" r="40" stroke="#0A84FF" stroke-width="8" fill="transparent" stroke-dasharray="251" stroke-dashoffset="251" stroke-linecap="round" style="transition: stroke-dashoffset 1s ease-in-out;"></circle>
+                  </svg>
+                  <div class="absolute inset-0 flex flex-col items-center justify-center">
+                    <span id="streak-counter" class="text-3xl font-bold tracking-tight">1</span>
+                    <span class="text-xs text-[#6E6E73] font-semibold uppercase tracking-widest mt-1">Goal Set</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dashboard Grid Row 2: Future Identity & Growth Meter -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in stagger-3">
+            <!-- Future Identity Card -->
+            <div class="md:col-span-2 glass-panel rounded-3xl p-8 hover:-translate-y-1 transition-transform duration-300">
+              <h2 class="text-lg font-semibold flex items-center gap-2 mb-4">
+                <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                Your Future Identity
+              </h2>
+              <div class="p-6 rounded-2xl bg-gradient-to-tr from-[#0A84FF]/10 to-purple-500/10 border border-white/60">
+                <p id="card-future-identity" class="text-lg font-medium text-[#111] leading-relaxed italic">
+                  "Parsing your future timeline..."
+                </p>
+              </div>
+            </div>
+
+            <!-- Confidence Score Ring -->
+            <div class="glass-panel rounded-3xl p-8 hover:-translate-y-1 transition-transform duration-300 flex flex-col">
+              <h2 class="text-lg font-semibold flex items-center gap-2 mb-4">
+                <svg class="w-5 h-5 text-[#34C759]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                Confidence Meter
+              </h2>
+              <div class="flex-1 flex flex-col items-center justify-center space-y-3">
+                <span id="score-percentage" class="text-5xl font-bold tracking-tight text-[#0A84FF]">0%</span>
+                <span class="text-xs text-[#6E6E73] font-medium text-center leading-relaxed">Mentor's faith in your present trajectory</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dashboard Grid Row 3: Strengths, Weaknesses, Challenges -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in">
+            <!-- Strength Card -->
+            <div class="glass-panel rounded-3xl p-8 border-l-4 border-[#34C759] hover:-translate-y-1 transition-transform duration-300">
+              <h3 class="text-sm font-semibold uppercase tracking-wider text-[#34C759] mb-2">Hidden Strength</h3>
+              <p id="card-strength" class="text-base text-[#111] leading-relaxed">
+                Loading hidden traits...
+              </p>
+            </div>
+            <!-- Blind Spot Card -->
+            <div class="glass-panel rounded-3xl p-8 border-l-4 border-[#FF3B30] hover:-translate-y-1 transition-transform duration-300">
+              <h3 class="text-sm font-semibold uppercase tracking-wider text-[#FF3B30] mb-2">Blind Spot</h3>
+              <p id="card-blindspot" class="text-base text-[#111] leading-relaxed">
+                Loading warnings...
+              </p>
+            </div>
+          </div>
+
+          <!-- Dashboard Grid Row 4: Habits, Missions & Mantra -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in">
+            <!-- Daily Habit -->
+            <div class="glass-panel rounded-3xl p-6 hover:-translate-y-1 transition-transform duration-300">
+              <span class="text-xs font-semibold text-[#FF9500] uppercase tracking-wider block mb-2">Daily Habit</span>
+              <p id="card-habit" class="text-sm font-medium text-[#111] leading-relaxed">
+                Daily compound action...
+              </p>
+            </div>
+            <!-- Weekly Mission -->
+            <div class="glass-panel rounded-3xl p-6 hover:-translate-y-1 transition-transform duration-300">
+              <span class="text-xs font-semibold text-purple-500 uppercase tracking-wider block mb-2">Weekly Mission</span>
+              <p id="card-mission" class="text-sm font-medium text-[#111] leading-relaxed">
+                Weekly challenge...
+              </p>
+            </div>
+            <!-- Daily Mantra -->
+            <div class="glass-panel rounded-3xl p-6 hover:-translate-y-1 transition-transform duration-300 cursor-pointer" id="btn-copy-mantra">
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-xs font-semibold text-[#0A84FF] uppercase tracking-wider block">Daily Mantra</span>
+                <svg class="w-4 h-4 text-[#6E6E73]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+              </div>
+              <p id="card-mantra" class="text-sm font-bold text-[#111] leading-relaxed">
+                "Repetition breeds focus."
+              </p>
+            </div>
+          </div>
+
+          <!-- Timeline Preview -->
+          <div class="glass-panel rounded-3xl p-8 hover:-translate-y-1 transition-transform duration-300 animate-fade-in stagger-4">
+            <div class="flex justify-between items-center mb-8">
+              <h2 class="text-lg font-semibold flex items-center gap-2">
+                <svg class="w-5 h-5 text-[#34C759]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> 
+                Future Timeline
+              </h2>
+              <button id="btn-timeline-view-all" class="text-sm font-medium text-[#0A84FF]">View Details</button>
+            </div>
+            
+            <div class="relative mb-6">
+              <!-- Connecting Line -->
+              <div class="absolute top-1/2 left-0 w-full h-0.5 bg-gray-200 -z-10 -translate-y-1/2 rounded-full"></div>
+              
+              <div class="flex justify-between items-center px-2">
+                <!-- Node 1 -->
+                <div class="flex flex-col items-center gap-3 cursor-pointer group" id="time-node-now">
+                  <div class="w-4 h-4 bg-[#0A84FF] rounded-full ring-4 ring-white shadow-md group-hover:scale-125 transition-transform" id="node-dot-now"></div>
+                  <span class="text-sm font-semibold text-[#111111]">Now</span>
+                </div>
+                <!-- Node 2 -->
+                <div class="flex flex-col items-center gap-3 cursor-pointer group" id="time-node-3m">
+                  <div class="w-4 h-4 bg-white border-2 border-gray-300 rounded-full ring-4 ring-white shadow-md group-hover:scale-125 transition-transform" id="node-dot-3m"></div>
+                  <span class="text-sm font-medium text-[#6E6E73]" id="node-label-3m">3 Months</span>
+                </div>
+                <!-- Node 3 -->
+                <div class="flex flex-col items-center gap-3 cursor-pointer group" id="time-node-1y">
+                  <div class="w-4 h-4 bg-white border-2 border-gray-300 rounded-full ring-4 ring-white shadow-md group-hover:scale-125 transition-transform" id="node-dot-1y"></div>
+                  <span class="text-sm font-medium text-[#6E6E73]" id="node-label-1y">1 Year</span>
+                </div>
+                <!-- Node 4 -->
+                <div class="flex flex-col items-center gap-3 cursor-pointer group" id="time-node-5y">
+                  <div class="w-4 h-4 bg-white border-2 border-gray-300 rounded-full ring-4 ring-white shadow-md group-hover:scale-125 transition-transform" id="node-dot-5y"></div>
+                  <span class="text-sm font-medium text-[#6E6E73]" id="node-label-5y">5 Years</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Detailed description of selected timeline node -->
+            <div id="timeline-detail-box" class="p-6 rounded-2xl bg-white/50 border border-white/60 animate-fade-in">
+              <h4 id="timeline-detail-title" class="font-bold text-[#111] text-sm uppercase tracking-wider mb-2">Selected Era</h4>
+              <p id="timeline-detail-text" class="text-sm text-[#6E6E73] leading-relaxed">
+                Click a timeline node above to parse predictions.
+              </p>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- PANEL 2: DETAILED TIMELINE TAB VIEW (HIDDEN BY DEFAULT) -->
+        <section id="panel-timeline-view" class="space-y-8 hidden">
+          <header class="space-y-2">
+            <h1 class="text-3xl font-bold tracking-tight text-[#111111]">Your Future Journey</h1>
+            <p class="text-base text-[#6E6E73]">A step-by-step look at how your life unfolded, as remembered by your future self.</p>
+          </header>
+
+          <div class="space-y-6" id="detailed-timeline-container">
+            <!-- Dynamically populated in ui.js -->
+          </div>
+        </section>
+
+        <!-- PANEL 3: LETTERS FROM THE FUTURE TAB VIEW (HIDDEN BY DEFAULT) -->
+        <section id="panel-letters-view" class="space-y-8 hidden">
+          <header class="space-y-2">
+            <h1 class="text-3xl font-bold tracking-tight text-[#111111]">Letters from the Future</h1>
+            <p class="text-base text-[#6E6E73]">Deep wisdom sent back through time. Print or save these letters to read offline.</p>
+          </header>
+
+          <!-- Letter Card -->
+          <div class="glass-panel rounded-3xl p-8 md:p-12 space-y-6 border border-white/80 relative" id="letter-content-area">
+            <div class="absolute top-8 right-8 flex gap-3">
+              <button id="btn-copy-letter" class="p-2 text-[#6E6E73] hover:text-[#111] hover:bg-white/50 rounded-full transition-all" title="Copy Letter">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+              </button>
+            </div>
+            
+            <div class="space-y-1">
+              <span class="text-xs font-semibold text-[#0A84FF] uppercase tracking-widest block">Message from 10 Years Ahead</span>
+              <span id="letter-date" class="text-xs text-[#6E6E73] font-medium">Date: October 24, 2036</span>
+            </div>
+
+            <div class="border-t border-gray-200/50 pt-6">
+              <p id="letter-body" class="text-lg text-gray-800 font-light leading-relaxed whitespace-pre-line italic">
+                Letters are being compiled...
+              </p>
+            </div>
+
+            <div class="border-t border-gray-200/50 pt-6 flex justify-between items-center text-xs text-[#6E6E73] font-medium">
+              <span>Origin: The Successful Alex</span>
+              <span>Values Aligned: Authentic, Resilient</span>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <!-- AI Mentor Chat Side Panel -->
+    <aside id="app-chat-sidebar" class="hidden lg:flex w-full lg:w-[400px] h-full flex-col glass-panel border-l border-white/40 shadow-[-10px_0_30px_-15px_rgba(0,0,0,0.05)] z-20 animate-fade-in absolute lg:relative inset-y-0 right-0 bg-[#F5F5F7]/95">
+      
+      <!-- Chat Header -->
+      <div class="p-6 border-b border-white/30 bg-white/30 backdrop-blur-md flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <!-- Back button on mobile to close chat panel and return to dashboard view -->
+          <button id="btn-chat-close-mobile" class="p-2 text-[#6E6E73] hover:bg-white/50 rounded-full transition-colors lg:hidden">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+          </button>
+          <div class="relative">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-[#0A84FF] to-purple-500 p-0.5 animate-pulse-soft">
+              <div class="w-full h-full bg-white rounded-full border-2 border-white overflow-hidden">
+                 <img id="avatar-mentor" src="https://api.dicebear.com/7.x/notionists/svg?seed=FutureAlex&backgroundColor=ffffff" alt="Future Self" class="w-full h-full object-cover">
+              </div>
+            </div>
+            <div class="absolute bottom-0 right-0 w-3 h-3 bg-[#34C759] border-2 border-white rounded-full"></div>
+          </div>
+          <div>
+            <h3 class="font-semibold text-[#111111]" id="chat-header-name">Future You</h3>
+            <p class="text-xs text-[#6E6E73]">Always here for you</p>
+          </div>
+        </div>
+
+        <!-- Options Menu (Dropdown for Mentor Tones) -->
+        <div class="relative">
+          <select id="chat-tone-selector" class="bg-white/70 border border-white/80 text-xs rounded-full px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#0A84FF] cursor-pointer text-[#6E6E73] font-medium shadow-sm transition-all">
+            <!-- Hydrated in ui.js -->
+          </select>
+        </div>
+      </div>
+
+      <!-- Chat History -->
+      <div id="chat-history-container" class="flex-1 overflow-y-auto p-6 space-y-6 flex flex-col">
+        <!-- Messages are appended here -->
+      </div>
+
+      <!-- Quick Suggested Questions -->
+      <div id="chat-suggestions-container" class="px-6 py-2 bg-white/20 border-t border-white/10 backdrop-blur-md">
+        <div id="chat-suggestions" class="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
+          <!-- Populated in ui.js based on API suggested questions -->
+        </div>
+      </div>
+
+      <!-- Chat Input -->
+      <div class="p-6 bg-white/40 border-t border-white/30 backdrop-blur-xl">
+        <div class="relative flex items-center">
+          <input type="text" id="chat-input" placeholder="Message your future self..." class="w-full bg-white/70 border border-white/80 text-sm rounded-full pl-5 pr-12 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#0A84FF]/30 shadow-inner placeholder:text-[#6E6E73] transition-all">
+          <button id="chat-send" class="absolute right-2 p-2 bg-[#0A84FF] text-white rounded-full hover:bg-blue-600 transition-colors shadow-md transform hover:scale-105 active:scale-95">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- Bootstrapping Script Modules -->
+  <script src="js/config.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
